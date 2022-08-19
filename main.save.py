@@ -54,11 +54,12 @@ def print_screen(txt_frame, nb_frames, deltat):
 
 
 def main():
-
+    ecx = 0
     nb_frames = 0
     cap = read_video(VIDEO_FILE_NAME)
     ret, frame = get_frame(cap)
-    while ret:
+    while ret and ecx < 1000:
+        ecx += 1
         deltat = time.time()
         nb_frames += 1
         ret, frame = get_frame(cap)
