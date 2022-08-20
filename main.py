@@ -2,20 +2,41 @@ import cv2
 import os
 import time
 import argparse
+import asyncio
+from getkey import getkey, keys
+import sys
+import select
+import tty
+import termios
+import signal
+
+
+
+
+class GLOBALS:
+    CAP = None
 
 # get keys
 TERMINALX, TERMINALY = os.get_terminal_size()
 
+async def get_key():
+    while True:
+        key = getkey()
+        GLOBALS.CAP.set(cv2.CAP_PROP_POS_FRAMES, GLOBALS.CAP.get(cv2.CAP_PROP_POS_FRAMES) + 300)
 
-def read_video(video_path):
-    cap = cv2.VideoCapture(video_path)
-    return cap
+def get_frame():
+    GLOBALS.CAP = cv2.VideoCapture(args.path)
+    GLOBALS.CAP.set(cv2.CAP_PROP_POS_FRAMES, args.startat)
 
-
-def get_frame(cap):
-    ret, frame = cap.read()
-    frame = cv2.resize(frame, (TERMINALX, TERMINALY))
-    return ret, frame
+    while GLOBALS.CAP.isOpened():
+        ret, frame = GLOBALS.CAP.read()
+        if frame is None:
+            exit()
+        frame = cv2.resize(frame, (TERMINALX, TERMINALY))
+        if ret:
+            yield frame
+        else:
+            break
 
 
 def boucle_screen(frame, txt_frame):
@@ -26,33 +47,47 @@ def boucle_screen(frame, txt_frame):
     return txt_frame
 
 
-def print_screen(txt_frame, nb_frames, deltat, TOTAL_FRAMES):
+def print_screen(txt_frame, nb_frames, deltat):
     print(f"\033[0;0H{''.join([''.join(i) for i in txt_frame])}")
 
 
+def isData():
+    return select.select([sys.stdin], [], [], 0) == ([sys.stdin], [], [])
 def main():
-    ecx = 0
-    nb_frames = 0
-    cap = read_video(args.path)
-    TOTAL_FRAMES = int(cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    print("Wait, it's loading...")
-    cap.set(cv2.CAP_PROP_POS_FRAMES, args.startat)
+    frames = get_frame()
     nb_frames = args.startat
-    ret, frame = get_frame(cap)
+    frame = next(frames)
     txt_frame = [[""] * TERMINALX for _ in range(TERMINALY)]
-    while ret:  # and ecx < 1000:
+
+    tty.setcbreak(sys.stdin.fileno())
+    while True:
+        if isData():
+            c = sys.stdin.read(1)
+            if c == "\x1b":
+                d = sys.stdin.read(1)
+                z = sys.stdin.read(1)
+                if d == "[":
+                    if z == 'A':
+                        GLOBALS.CAP.set(cv2.CAP_PROP_POS_FRAMES, GLOBALS.CAP.get(cv2.CAP_PROP_POS_FRAMES) - 300)
+                    elif z == 'B':
+                        GLOBALS.CAP.set(cv2.CAP_PROP_POS_FRAMES, GLOBALS.CAP.get(cv2.CAP_PROP_POS_FRAMES) + 300)
+                    elif z == 'C':
+                        GLOBALS.CAP.set(cv2.CAP_PROP_POS_FRAMES, GLOBALS.CAP.get(cv2.CAP_PROP_POS_FRAMES) + 10000)
+                    elif z == 'D':
+                        GLOBALS.CAP.set(cv2.CAP_PROP_POS_FRAMES, GLOBALS.CAP.get(cv2.CAP_PROP_POS_FRAMES) - 1000)
         deltat = time.time()
-        ecx += 1
         nb_frames += 1
-        _, frame = get_frame(cap)
+        frame = next(frames)
         txt_frame = boucle_screen(frame, txt_frame)
 
-        print_screen(txt_frame, nb_frames, deltat, TOTAL_FRAMES)
+        print_screen(txt_frame, nb_frames, deltat)
         time_to_wait = 1 / args.fps - (time.time() - deltat)
         if time_to_wait > 0:
             time.sleep(time_to_wait)
-        print(f"\033[0m\033[0;0H frames: {str(nb_frames)}/{TOTAL_FRAMES} fps: {1 / (time.time() - deltat):.2f} "
-              f"loose: {time_to_wait * 1000:.2f}")
+        print(f"\033[0m\033[0;0H frames: {str(GLOBALS.CAP.get(cv2.CAP_PROP_POS_FRAMES))} fps: {1 / (time.time() - deltat):.2f}"
+              f" loose: {time_to_wait * 1000:.2f}")
+
+
 
 
 if __name__ == "__main__":
@@ -63,4 +98,11 @@ if __name__ == "__main__":
     parser.add_argument('fps', metavar='fps', type=int, help='FPS.', const=24, nargs='?', default=24)
 
     args = parser.parse_args()
-    main()
+
+    old_settings = termios.tcgetattr(sys.stdin)
+    try:
+        main()
+    finally:
+        termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
+
+
