@@ -47,6 +47,18 @@ class ProgressBar:
         Player.txt_frames[Globals.term_y - 4][19 + Globals.term_x - 40] = Template.right
         Player.txt_frames[Globals.term_y - 3][19 + Globals.term_x - 40] = Template.bottom_right
 
+    def show_status(self) -> None:
+        Player = self.Player
+        Globals = Player.Globals
+
+        start_y = int(Globals.term_y / 2 - 3)
+        start_x1 = int(Globals.term_x / 2 - 4)
+        start_x2 = start_x1 + 6
+        for y in range(5):
+            for x in range(2):
+                Player.txt_frames[start_y + y][start_x1 + x] = f"\033[0m{Template.block}"
+                Player.txt_frames[start_y + y][start_x2 + x] = f"\033[0m{Template.block}"
+
     def set_actulize(self) -> None:
         self.actu = True
 
