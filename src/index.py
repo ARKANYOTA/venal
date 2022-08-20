@@ -1,4 +1,3 @@
-from src.player import Player
 from src.get_key import match_key
 
 import cv2
@@ -8,8 +7,7 @@ if os.name != "nt":
     import tty, sys
 
 
-def main(args):
-    player = Player(args.path, args.startat)
+def main(args, player):
 
     if os.name != "nt":
         tty.setcbreak(sys.stdin.fileno())

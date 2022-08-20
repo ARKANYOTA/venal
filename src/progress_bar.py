@@ -57,3 +57,17 @@ class ProgressBar:
     def set_status(self) -> None:
         self.status = not self.status
         self.set_actulize()
+
+    def is_in_bar(self, x, y) -> bool:
+        Player = self.Player
+        Globals = Player.Globals
+        if 20 <= x <= Globals.term_x - 20 and Globals.term_y - 5 <= y <= Globals.term_y - 3:
+            return True
+        return False
+
+    def get_bar_pos(self) -> int:
+        return int(self.Player.cap.get(cv2.CAP_PROP_POS_FRAMES) / self.Player.cap.get(cv2.CAP_PROP_FRAME_COUNT) * (self.Player.Globals.term_x - 54))
+
+    def goto_frame(self, frame) -> None:
+        self.Player.cap.set(cv2.CAP_PROP_POS_FRAMES, frame)
+        self.set_actulize()

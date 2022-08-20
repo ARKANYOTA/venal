@@ -58,4 +58,7 @@ class Player:
         return next(self._get_frames)
 
     def print_frames(self):
-        print(f"\033[0;0H{''.join([''.join(i) for i in self.txt_frames])}")
+        try:
+            print(f"\033[0;0H{''.join([''.join(i) for i in self.txt_frames])}")
+        except BlockingIOError:
+            pass
