@@ -10,6 +10,9 @@ class GLOBALS:
     CAP = None
     TERMINALX, TERMINALY = os.get_terminal_size()
     TXT_FRAME = []
+    IS_PAUSED = False
+    IS_PROGRESS_BAR = True
+    NEED_TO_BE_ACTUALIZED = True
 
 
 try:
@@ -54,6 +57,13 @@ def match_key():
             print("\033[0;0H\033[2J")
             GLOBALS.TERMINALX, GLOBALS.TERMINALY = os.get_terminal_size()
             GLOBALS.TXT_FRAME = [[""] * GLOBALS.TERMINALX for _ in range(GLOBALS.TERMINALY)]
+            GLOBALS.NEED_TO_BE_ACTUALIZED = True
+        case " ":
+            GLOBALS.IS_PAUSED = not GLOBALS.IS_PAUSED
+            GLOBALS.NEED_TO_BE_ACTUALIZED = True
+        case "p":
+            GLOBALS.IS_PROGRESS_BAR = not GLOBALS.IS_PROGRESS_BAR
+            GLOBALS.NEED_TO_BE_ACTUALIZED = True
 
 
 def get_frame():
@@ -61,6 +71,8 @@ def get_frame():
     GLOBALS.CAP.set(cv2.CAP_PROP_POS_FRAMES, args.startat)
 
     while GLOBALS.CAP.isOpened():
+        if GLOBALS.IS_PAUSED:
+            GLOBALS.CAP.set(cv2.CAP_PROP_POS_FRAMES, GLOBALS.CAP.get(cv2.CAP_PROP_POS_FRAMES) - 1)
         ret, frame = GLOBALS.CAP.read()
         if frame is None:
             exit()
@@ -78,7 +90,7 @@ def boucle_screen(frame):
             GLOBALS.TXT_FRAME[yi][xi] = f"\033[38;2;{b};{g};{r}m\u2588"
 
 
-def print_screen(nb_frames, deltat):
+def print_screen():
     print(f"\033[0;0H{''.join([''.join(i) for i in GLOBALS.TXT_FRAME])}")
 
 
@@ -100,16 +112,35 @@ def main():
     while True:
         match_key()
 
-        deltat = time.time()
-        nb_frames += 1
-        frame = next(frames)
-        boucle_screen(frame)
+        if not GLOBALS.IS_PAUSED or GLOBALS.NEED_TO_BE_ACTUALIZED:
+            deltat = time.time()
+            GLOBALS.NEED_TO_BE_ACTUALIZED = False
 
-        print_screen(nb_frames, deltat)
-        time_to_wait = 1 / args.fps - (time.time() - deltat)
-        if time_to_wait > 0:
-            time.sleep(time_to_wait)
-        print(f"\033[0m\033[0;0H frames: {str(GLOBALS.CAP.get(cv2.CAP_PROP_POS_FRAMES))} fps: {1 / (time.time() - deltat):.2f}" f" loose: {time_to_wait * 1000:.2f}")
+            frame = next(frames)
+
+            boucle_screen(frame)
+            if GLOBALS.IS_PROGRESS_BAR:
+                fullblock = "█"
+                # ╭│─╮╰╯
+                # print(f"\033[0m\033[{GLOBALS.TERMINALY-5};19H╭{'─'*(GLOBALS.TERMINALX-40)}╮")
+                # print(f"\033[0m\033[{GLOBALS.TERMINALY-4};19H│{' '*(GLOBALS.TERMINALX-40)}│")
+                # print(f"\033[0m\033[{GLOBALS.TERMINALY-4};20H{'█'*int(GLOBALS.CAP.get(cv2.CAP_PROP_POS_FRAMES)/GLOBALS.CAP.get(cv2.CAP_PROP_FRAME_COUNT) * (GLOBALS.TERMINALX-40))}")
+                # print(f"\033[0m\033[{GLOBALS.TERMINALY-3};19H╰{'─'*(GLOBALS.TERMINALX-40)}╯")
+                GLOBALS.TXT_FRAME[GLOBALS.TERMINALY-5][19] = "\033[0m╭"
+                GLOBALS.TXT_FRAME[GLOBALS.TERMINALY-4][19] = "\033[0m│"
+                GLOBALS.TXT_FRAME[GLOBALS.TERMINALY-3][19] = "\033[0m╰"
+                for y in range(GLOBALS.TERMINALX-40):
+                    GLOBALS.TXT_FRAME[GLOBALS.TERMINALY-5][20+y] = "─"
+                    GLOBALS.TXT_FRAME[GLOBALS.TERMINALY-4][20+y] = "█" if int(GLOBALS.CAP.get(cv2.CAP_PROP_POS_FRAMES)/GLOBALS.CAP.get(cv2.CAP_PROP_FRAME_COUNT) * (GLOBALS.TERMINALX-40)) > y else "┈"
+                    GLOBALS.TXT_FRAME[GLOBALS.TERMINALY-3][20+y] = "─"
+                GLOBALS.TXT_FRAME[GLOBALS.TERMINALY-5][19+GLOBALS.TERMINALX-40] = "╮"
+                GLOBALS.TXT_FRAME[GLOBALS.TERMINALY-4][19+GLOBALS.TERMINALX-40] = "│"
+                GLOBALS.TXT_FRAME[GLOBALS.TERMINALY-3][19+GLOBALS.TERMINALX-40] = "╯"
+            print_screen()
+            time_to_wait = 1 / args.fps - (time.time() - deltat)
+            if time_to_wait > 0:
+                time.sleep(time_to_wait)
+            # print(f"\033[0m\033[0;0H frames: {str(GLOBALS.CAP.get(cv2.CAP_PROP_POS_FRAMES))} fps: {1 / (time.time() - deltat):.2f}" f" loose: {time_to_wait * 1000:.2f}")
 
 
 if __name__ == "__main__":
