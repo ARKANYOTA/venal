@@ -13,7 +13,7 @@ class GLOBALS:
     IS_PAUSED = False
     IS_PROGRESS_BAR = True
     NEED_TO_BE_ACTUALIZED = True
-
+    FPS = 24
 
 try:
     # POSIX system: Create and return a getch that manipulates the tty
@@ -69,6 +69,7 @@ def match_key():
 def get_frame():
     GLOBALS.CAP = cv2.VideoCapture(args.path)
     GLOBALS.CAP.set(cv2.CAP_PROP_POS_FRAMES, args.startat)
+    GLOBALS.FPS = GLOBALS.CAP.get(cv2.CAP_PROP_FPS)
 
     while GLOBALS.CAP.isOpened():
         if GLOBALS.IS_PAUSED:
@@ -126,13 +127,26 @@ def main():
                 # print(f"\033[0m\033[{GLOBALS.TERMINALY-4};19H│{' '*(GLOBALS.TERMINALX-40)}│")
                 # print(f"\033[0m\033[{GLOBALS.TERMINALY-4};20H{'█'*int(GLOBALS.CAP.get(cv2.CAP_PROP_POS_FRAMES)/GLOBALS.CAP.get(cv2.CAP_PROP_FRAME_COUNT) * (GLOBALS.TERMINALX-40))}")
                 # print(f"\033[0m\033[{GLOBALS.TERMINALY-3};19H╰{'─'*(GLOBALS.TERMINALX-40)}╯")
+                # time_before = " 010:02 "
+                # time_after = " 010:02 "
+
+                time_before = time.strftime(" %H:%M ", time.gmtime(GLOBALS.CAP.get(cv2.CAP_PROP_POS_FRAMES)/GLOBALS.FPS))
+                time_after = time.strftime(" %H:%M ", time.gmtime((GLOBALS.CAP.get(cv2.CAP_PROP_FRAME_COUNT)-GLOBALS.CAP.get(cv2.CAP_PROP_POS_FRAMES))/GLOBALS.FPS))
+                # time_before = f"{int(GLOBALS.CAP.get(cv2.CAP_PROP_POS_FRAMES)/GLOBALS.CAP.get(cv2.CAP_PROP_FRAME_COUNT) * 100):^7}%"
+                # time_after  = f"{int(GLOBALS.CAP.get(cv2.CAP_PROP_POS_FRAMES)/GLOBALS.CAP.get(cv2.CAP_PROP_FRAME_COUNT) * 100):^7}%"
                 GLOBALS.TXT_FRAME[GLOBALS.TERMINALY-5][19] = "\033[0m╭"
                 GLOBALS.TXT_FRAME[GLOBALS.TERMINALY-4][19] = "\033[0m│"
                 GLOBALS.TXT_FRAME[GLOBALS.TERMINALY-3][19] = "\033[0m╰"
                 for y in range(GLOBALS.TERMINALX-40):
                     GLOBALS.TXT_FRAME[GLOBALS.TERMINALY-5][20+y] = "─"
-                    GLOBALS.TXT_FRAME[GLOBALS.TERMINALY-4][20+y] = "█" if int(GLOBALS.CAP.get(cv2.CAP_PROP_POS_FRAMES)/GLOBALS.CAP.get(cv2.CAP_PROP_FRAME_COUNT) * (GLOBALS.TERMINALX-40)) > y else "┈"
                     GLOBALS.TXT_FRAME[GLOBALS.TERMINALY-3][20+y] = "─"
+                for y in range(GLOBALS.TERMINALX-54):
+                    GLOBALS.TXT_FRAME[GLOBALS.TERMINALY-4][27+y] = "█" if int(GLOBALS.CAP.get(cv2.CAP_PROP_POS_FRAMES)/GLOBALS.CAP.get(cv2.CAP_PROP_FRAME_COUNT) * (GLOBALS.TERMINALX-54)) > y else "┈"
+
+                for y in range(len(time_before)):
+                    GLOBALS.TXT_FRAME[GLOBALS.TERMINALY-4][20+y] = time_before[y]
+                for y in range(len(time_after )):
+                    GLOBALS.TXT_FRAME[GLOBALS.TERMINALY-4][20+GLOBALS.TERMINALX-47+y] = time_after[y]
                 GLOBALS.TXT_FRAME[GLOBALS.TERMINALY-5][19+GLOBALS.TERMINALX-40] = "╮"
                 GLOBALS.TXT_FRAME[GLOBALS.TERMINALY-4][19+GLOBALS.TERMINALX-40] = "│"
                 GLOBALS.TXT_FRAME[GLOBALS.TERMINALY-3][19+GLOBALS.TERMINALX-40] = "╯"
