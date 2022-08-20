@@ -55,4 +55,3 @@ if __name__ == "__main__":
     finally:
         if os.name != "nt":
             termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
-

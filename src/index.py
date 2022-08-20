@@ -22,6 +22,8 @@ def main(args, player):
             player.screen_loop()
             if player.ProgressBar.status:
                 player.ProgressBar.show()
+            if player.ProgressBar.pause:
+                player.ProgressBar.show_status()
             player.print_frames()
             time_to_wait = 1 / args.fps - (time.time() - deltat)
             if time_to_wait > 0:
