@@ -1,9 +1,8 @@
-from enum import Enum
 import time
 import cv2
 
 
-class Template(Enum):
+class Template:
     top_left = "╭"
     top_right = "╮"
     bottom_left = "╰"
