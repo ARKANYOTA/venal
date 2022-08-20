@@ -2,13 +2,10 @@ import cv2
 import os
 import time
 import argparse
-import asyncio
-from getkey import getkey, keys
 import sys
 import select
 import tty
 import termios
-import signal
 
 
 
@@ -18,11 +15,6 @@ class GLOBALS:
 
 # get keys
 TERMINALX, TERMINALY = os.get_terminal_size()
-
-async def get_key():
-    while True:
-        key = getkey()
-        GLOBALS.CAP.set(cv2.CAP_PROP_POS_FRAMES, GLOBALS.CAP.get(cv2.CAP_PROP_POS_FRAMES) + 300)
 
 def get_frame():
     GLOBALS.CAP = cv2.VideoCapture(args.path)
