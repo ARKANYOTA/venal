@@ -45,14 +45,15 @@ def boucle_screen(frame):
     return txt_frame
 
 
-def get_all_frames(all_frames, get_frame, max_frames):
+
+async def get_all_frames(all_frames, get_frame, max_frames):
     with tqdm(total=max_frames, desc="Threading #1 get All frames") as pbar:
         for [frame, _] in get_frame:
             all_frames.put(frame)
             pbar.update(1)
 
 
-def resolve_all_frames(all_frames, all_resolved, get_frame, max_frames):
+async  def resolve_all_frames(all_frames, all_resolved, get_frame, max_frames):
     with tqdm(total=max_frames, desc="Threading #2 resolve All frames") as pbar:
         for i in range(max_frames):
             nxt = all_frames.get(block=True)
@@ -67,14 +68,20 @@ def main():
 
     all_frames = Queue()
     all_resolved = Queue()
+    tasks = []
 
-    pool_frames = ThreadPool(processes=os.cpu_count())
+    tasks.append(get_all_frames(all_frames, get_frame, max_frames))
+    tasks.append(resolve_all_frames(all_frames, all_resolved, get_frame, max_frames))
 
-    worker1 = pool_frames.apply_async(get_all_frames, args=(all_frames, get_frame, max_frames))
-    worker2 = pool_frames.apply_async(resolve_all_frames, args=(all_frames, all_resolved, get_frame, max_frames))
+    asyncio.run(asyncio.gather(*tasks))
 
-    worker1.wait()
-    worker2.wait()
+    # pool_frames = ThreadPool(processes=os.cpu_count())
+
+    # worker1 = pool_frames.apply_async(get_all_frames, args=(all_frames, get_frame, max_frames))
+    # worker2 = pool_frames.apply_async(resolve_all_frames, args=(all_frames, all_resolved, get_frame, max_frames))
+
+    # worker1.wait()
+    # worker2.wait()
     print("all_resolved")
 
     # with tqdm(total=max_frames, desc="Threading") as pbar:
