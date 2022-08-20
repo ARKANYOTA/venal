@@ -1,5 +1,7 @@
 from src.index import main
 import argparse, os
+if os.name != "nt":
+    import sys, termios
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Vlc on terminal.")

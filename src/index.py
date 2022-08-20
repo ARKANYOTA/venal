@@ -4,7 +4,8 @@ from src.get_key import match_key
 import cv2
 import os
 import time
-import sys
+if os.name != "nt":
+    import tty, sys
 
 
 def main(args):
