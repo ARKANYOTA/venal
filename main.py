@@ -12,9 +12,9 @@ import termios
 
 class GLOBALS:
     CAP = None
+    TERMINALX, TERMINALY = os.get_terminal_size()
 
 # get keys
-TERMINALX, TERMINALY = os.get_terminal_size()
 
 def get_frame():
     GLOBALS.CAP = cv2.VideoCapture(args.path)
@@ -24,7 +24,7 @@ def get_frame():
         ret, frame = GLOBALS.CAP.read()
         if frame is None:
             exit()
-        frame = cv2.resize(frame, (TERMINALX, TERMINALY))
+        frame = cv2.resize(frame, (GLOBALS.TERMINALX, GLOBALS.TERMINALY))
         if ret:
             yield frame
         else:
@@ -49,7 +49,7 @@ def main():
     frames = get_frame()
     nb_frames = args.startat
     frame = next(frames)
-    txt_frame = [[""] * TERMINALX for _ in range(TERMINALY)]
+    txt_frame = [[""] * GLOBALS.TERMINALX for _ in range(GLOBALS.TERMINALY)]
 
     tty.setcbreak(sys.stdin.fileno())
     while True:
@@ -67,6 +67,12 @@ def main():
                         GLOBALS.CAP.set(cv2.CAP_PROP_POS_FRAMES, GLOBALS.CAP.get(cv2.CAP_PROP_POS_FRAMES) + 10000)
                     elif z == 'D':
                         GLOBALS.CAP.set(cv2.CAP_PROP_POS_FRAMES, GLOBALS.CAP.get(cv2.CAP_PROP_POS_FRAMES) - 1000)
+            if c== "r":
+                print("\033[0;0H\033[2J")
+                GLOBALS.TERMINALX, GLOBALS.TERMINALY = os.get_terminal_size()
+                txt_frame = [[""] * GLOBALS.TERMINALX for _ in range(GLOBALS.TERMINALY)]
+
+
         deltat = time.time()
         nb_frames += 1
         frame = next(frames)
