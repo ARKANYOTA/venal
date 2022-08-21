@@ -13,6 +13,12 @@ class Globals:
         self.Player.init_txt_frame()
         self.Player.ProgressBar.set_actulize()
 
+    def quit_player(self) -> None:
+        self.Player.running = False
+        if self.Player.Globals.Mouse.mouse_active:
+            self.Player.Globals.Mouse.mouse_active = False
+            self.Player.mouse_thread.join()
+
 
 class App:
     Player = None

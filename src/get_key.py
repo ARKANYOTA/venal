@@ -78,6 +78,8 @@ def match_key(player):
             player.ProgressBar.set_pause()
         case "p":
             player.ProgressBar.set_status()
+        case "q":
+            player.Globals.quit_player()
 
 
 def mouse_press_on_bar(player, key: KeyEvent):
@@ -94,10 +96,15 @@ def mouse_press_on_bar(player, key: KeyEvent):
             return True
     return False
 def match_mouse(key: KeyEvent, player):
-    if key.click_state == "down":
-        if mouse_press_on_bar(player, key):
-            return
-        else:
-            player.ProgressBar.set_pause()
-            return
+    if key.key == "mouse_left_click":
+        if key.click_state == "down":
+            if mouse_press_on_bar(player, key):
+                return
+            else:
+                player.ProgressBar.set_pause()
+                return
+    elif key.key == "mouse_scroll_up":
+        player.video_add(300)
+    elif key.key == "mouse_scroll_down":
+        player.video_add(-300)
     return "mouse_event"

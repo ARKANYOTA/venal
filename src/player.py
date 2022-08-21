@@ -8,6 +8,9 @@ class Player:
     cap: any = None
     fps: int = 0
     txt_frames: list[list[str]] = []
+    running = True
+    main_thread = None
+    mouse_thread = None
 
     App: App = App()
     Globals: Globals = Globals()
@@ -32,6 +35,8 @@ class Player:
             if self.ProgressBar.pause:
                 self.cap.set(cv2.CAP_PROP_POS_FRAMES, self.cap.get(cv2.CAP_PROP_POS_FRAMES) - 1)
             ret, frame = self.cap.read()
+            if not ret:
+                self.Globals.quit_player()
             if frame is None:
                 exit()
             frame = cv2.resize(frame, (self.Globals.term_x, self.Globals.term_y))
@@ -55,10 +60,12 @@ class Player:
         self.txt_frames = [[""] * self.Globals.term_x for _ in range(self.Globals.term_y)]
 
     def get_frame(self):
-        return next(self._get_frames)
+        next_frame = next(self._get_frames)
+        return next_frame
 
     def print_frames(self):
         try:
             print(f"\033[0;0H{''.join([''.join(i) for i in self.txt_frames])}")
         except BlockingIOError:
             pass
+

@@ -1,3 +1,5 @@
+import time
+
 from src.application import Globals
 from src.index import main
 from src.player import Player
@@ -34,17 +36,18 @@ if __name__ == "__main__":
 
         player = Player(args.path, args.startat)
         if args.mouse_active:
-            player.Globals.Mouse = Mouse(args.mouse_active)
-            mouse_thread = player.Globals.Mouse.start()
+            player.Globals.Mouse = Mouse(args.mouse_active, player)
+            player.mouse_thread = player.Globals.Mouse.start()
         else:
-            player.Globals.Mouse = Mouse(False)
-        main_thread = threading.Thread(target=main, args=(args, player))
-        main_thread.start()
-        main_thread.join()
+            player.Globals.Mouse = Mouse(False, player)
+        player.main_thread = threading.Thread(target=main, args=(args, player))
+        player.main_thread.start()
+        player.main_thread.join()
         if args.mouse_active:
             player.Globals.Mouse.end()
     except KeyboardInterrupt:
         print("\nBye.")
+
     except BlockingIOError as e:
         print("\033[0m",show_cursor, mouse_off, mouse_direct_off)
 
@@ -54,4 +57,5 @@ if __name__ == "__main__":
         exit(1)
     finally:
         if os.name != "nt":
-            termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)
+            if not args.mouse_active:
+                termios.tcsetattr(sys.stdin, termios.TCSADRAIN, old_settings)

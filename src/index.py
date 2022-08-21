@@ -12,7 +12,7 @@ def main(args, player):
     if os.name != "nt":
         tty.setcbreak(sys.stdin.fileno())
 
-    while True:
+    while player.running:
         match_key(player)
 
         if not player.ProgressBar.pause or player.ProgressBar.actu:

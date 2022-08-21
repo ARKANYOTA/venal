@@ -1,3 +1,4 @@
+import logging
 import queue
 import sys
 import os
@@ -9,6 +10,7 @@ import re
 import fcntl
 import termios
 import tty
+from src.player import Player
 
 escape = {
     "\n": "enter",
@@ -75,6 +77,9 @@ mouse_state = {
     # mouse_scroll..
     "\033[<64;": "mouse_scroll_up",
     "\033[<65;": "mouse_scroll_down",
+    # mouse_scroll_shift..
+    "\033[<68;": "mouse_scroll_shift_up",
+    "\033[<69;": "mouse_scroll_shift_down",
     # mouse_scroll_alt..
     "\033[<72;": "mouse_scroll_alt_up",
     "\033[<73;": "mouse_scroll_alt_down",
@@ -234,10 +239,11 @@ class KeyEvent:
 
 
 class Mouse:
-    def __init__(self, mouse_active: bool):
+    def __init__(self, mouse_active: bool, Player: Player):
         self.reader = None
         self.key_pressed: queue.Queue[KeyEvent] = queue.Queue()
         self.mouse_active: bool = mouse_active
+        self.Player = Player
 
     def add_key(self, key: KeyEvent):
         self.key_pressed.put(key)
@@ -252,7 +258,7 @@ class Mouse:
         print(mouse_on)
         self.reader = threading.Thread(target=self.get_mouse_key)
         self.reader.start()
-        return
+        return self.reader
 
     def end(self):
         self.reader.join()
@@ -265,7 +271,7 @@ class Mouse:
     def get_mouse_key(self):
         input_key = ""
         mouse_pos = None
-        while True:
+        while self.Player.Globals.Mouse.mouse_active:
             click_state = ""
             with Raw(sys.stdin):
                 if not select([sys.stdin], [], [], 0.1)[0]:
@@ -284,7 +290,11 @@ class Mouse:
                         regex = re.search('\x1b\[<[0-9]{1,2};(-?[0-9]+);(-?[0-9]+)([mM])', input_key)
                         mouse_pos = (int(regex.group(1)), int(regex.group(2)))
                         click_state = {"m": "up", "M": "down"}[regex.group(3)]
-                    clean_key = mouse_state[escape_element]
+                        clean_key = mouse_state[escape_element]
+                    else:
+                        clean_key = "This is a unknown mouse event"
+                        open("mouse_error.log", "a").write("Unknown mouse event: {}\n".format(str(input_key.encode("utf-8"))))
+
                 else:
                     clean_key = input_key
                     mouse_pos = None
