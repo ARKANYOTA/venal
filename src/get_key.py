@@ -1,11 +1,16 @@
 import os
-from src.get_mouse import KeyEvent
+
 import cv2
+
+from src.get_mouse import KeyEvent
 
 try:
     # POSIX system: Create and return a getch that manipulates the tty
-    import termios, sys
-    import tty, select
+    import termios
+    import sys
+    import tty
+    import select
+
 
     # Read arrow keys correctly
     def get_key(player):
@@ -43,6 +48,7 @@ try:
 except ImportError:
     # Non-POSIX: Return msvcrt's (Windows') getch
     from msvcrt import getch, kbhit
+
 
     # Read arrow keys correctly
     def get_key(player):
@@ -94,18 +100,21 @@ def match_key(player):
 
 
 def mouse_press_on_bar(player, key: KeyEvent):
-    mouse_pos: tuple[int, int]= key.mouse_pos
+    mouse_pos: tuple[int, int] = key.mouse_pos
     if player.ProgressBar.status:
         if player.ProgressBar.is_in_bar(mouse_pos[0], mouse_pos[1]):
-            goto_frame = (mouse_pos[0] - 27) * (player.cap.get(cv2.CAP_PROP_FRAME_COUNT)) // (player.Globals.term_x - 54)
+            goto_frame = (mouse_pos[0] - 27) * (player.cap.get(cv2.CAP_PROP_FRAME_COUNT)) // (
+                    player.Globals.term_x - 54)
             player.ProgressBar.goto_frame(goto_frame)
 
-           # if mouse_pos[0] < player.ProgressBar.get_bar_pos() + 27:
-           #     player.video_add(-300)
-           # if mouse_pos[0] > player.ProgressBar.get_bar_pos() + 27:
-           #     player.video_add(300)
+            # if mouse_pos[0] < player.ProgressBar.get_bar_pos() + 27:
+            #     player.video_add(-300)
+            # if mouse_pos[0] > player.ProgressBar.get_bar_pos() + 27:
+            #     player.video_add(300)
             return True
     return False
+
+
 def match_mouse(key: KeyEvent, player):
     if key.key == "mouse_left_click":
         if key.click_state == "down":

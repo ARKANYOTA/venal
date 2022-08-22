@@ -1,5 +1,6 @@
 import os
 
+
 class Globals:
     Player = None
     Args = None

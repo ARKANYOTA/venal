@@ -28,7 +28,8 @@ class ProgressBar:
         Globals = Player.Globals
 
         time_before = time.strftime(" %H:%M ", time.gmtime(Player.cap.get(cv2.CAP_PROP_POS_FRAMES) / Player.fps))
-        time_after = time.strftime(" %H:%M ", time.gmtime((Player.cap.get(cv2.CAP_PROP_FRAME_COUNT) - Player.cap.get(cv2.CAP_PROP_POS_FRAMES)) / Player.fps))
+        time_after = time.strftime(" %H:%M ", time.gmtime(
+            (Player.cap.get(cv2.CAP_PROP_FRAME_COUNT) - Player.cap.get(cv2.CAP_PROP_POS_FRAMES)) / Player.fps))
         Player.txt_frames[Globals.term_y - 5][19] = f"\033[0m{Template.top_left}"
         Player.txt_frames[Globals.term_y - 4][19] = f"\033[0m{Template.left}"
         Player.txt_frames[Globals.term_y - 3][19] = f"\033[0m{Template.bottom_left}"
@@ -37,7 +38,9 @@ class ProgressBar:
             Player.txt_frames[Globals.term_y - 3][20 + y] = Template.bottom
         for y in range(Globals.term_x - 54):
             Player.txt_frames[Globals.term_y - 4][27 + y] = (
-                Template.block if int(Player.cap.get(cv2.CAP_PROP_POS_FRAMES) / Player.cap.get(cv2.CAP_PROP_FRAME_COUNT) * (Globals.term_x - 54)) > y else Template.future
+                Template.block if int(
+                    Player.cap.get(cv2.CAP_PROP_POS_FRAMES) / Player.cap.get(cv2.CAP_PROP_FRAME_COUNT) * (
+                                Globals.term_x - 54)) > y else Template.future
             )
         for y in range(len(time_before)):
             Player.txt_frames[Globals.term_y - 4][20 + y] = time_before[y]
@@ -58,6 +61,7 @@ class ProgressBar:
             for x in range(2):
                 Player.txt_frames[start_y + y][start_x1 + x] = f"\033[0m{Template.block}"
                 Player.txt_frames[start_y + y][start_x2 + x] = f"\033[0m{Template.block}"
+
     def set_actulize(self) -> None:
         self.actu = True
 
@@ -77,7 +81,8 @@ class ProgressBar:
         return False
 
     def get_bar_pos(self) -> int:
-        return int(self.Player.cap.get(cv2.CAP_PROP_POS_FRAMES) / self.Player.cap.get(cv2.CAP_PROP_FRAME_COUNT) * (self.Player.Globals.term_x - 54))
+        return int(self.Player.cap.get(cv2.CAP_PROP_POS_FRAMES) / self.Player.cap.get(cv2.CAP_PROP_FRAME_COUNT) * (
+                    self.Player.Globals.term_x - 54))
 
     def goto_frame(self, frame) -> None:
         self.Player.cap.set(cv2.CAP_PROP_POS_FRAMES, frame)

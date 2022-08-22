@@ -1,10 +1,8 @@
-import logging
 import queue
 import sys
 import os
 import signal
 import threading
-import time
 from select import select
 import re
 import fcntl
@@ -222,7 +220,6 @@ if __name__ == "__main__":
     main()
 
 
-
 class KeyEvent:
     def __init__(self, key: str, mouse_pos: tuple[int, int], click_state: str, input_save: str):
         self.key = key
@@ -283,7 +280,7 @@ class Mouse:
                         if input_key.startswith("\033[<"):
                             _ = sys.stdin.read(1000)
                 if not re.search("\x1b\[<[0-9]{1,2};", input_key) is None:
-                    # With some terminals it possible to drag out of terminal, they setup negative number, do careful with that: can ["urxvt"], dont update out ["kitty"], update but not negative out of size ["xterm"]
+                    # With some terminals it possible to drag out of terminal, they set up negative number, do careful with that: can ["urxvt"], dont update out ["kitty"], update but not negative out of size ["xterm"]
                     escape_element = re.search("\x1b\[<[0-9]{1,2};", input_key).group(0)
                     if escape_element in mouse_state.keys() and \
                             not re.search("\x1b\[<[0-9]{1,2};-?[0-9]+;-?[0-9]+[mM]", input_key) is None:
@@ -293,7 +290,8 @@ class Mouse:
                         clean_key = mouse_state[escape_element]
                     else:
                         clean_key = "This is a unknown mouse event"
-                        open("mouse_error.log", "a").write("Unknown mouse event: {}\n".format(str(input_key.encode("utf-8"))))
+                        open("mouse_error.log", "a").write(
+                            "Unknown mouse event: {}\n".format(str(input_key.encode("utf-8"))))
 
                 else:
                     clean_key = input_key

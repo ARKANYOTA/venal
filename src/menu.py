@@ -46,7 +46,6 @@ class MenuItem(MenuParent):
     def __init__(self, text: str, action: callable = None, call_key: str = None, condition: callable = None,
                  args: tuple = None) -> None:
         super().__init__(text, action, call_key, condition, args)
-        self.Menu: Menu = None
 
 
 class Menu:

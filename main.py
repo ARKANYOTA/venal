@@ -1,13 +1,13 @@
-import time
-
-from src.application import Globals
 from src.index import main
 from src.player import Player
 import threading
 from src.get_mouse import Mouse, mouse_off, show_cursor, mouse_direct_off
-import argparse, os
+import argparse
+import os
+
 if os.name != "nt":
-    import sys, termios
+    import sys
+    import termios
 
 # TODO
 # - Buffer
@@ -20,13 +20,15 @@ if os.name != "nt":
 #     - Quitter
 # - Options
 #     - Caméra args.path = 0
-# - Sur la bar un appercu de la video
+# - Sur la bar un apercu de la video
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Vlc on terminal.")
-    parser.add_argument("path", metavar="path", type=str, nargs="?", help="Path to video file.", const="a.mkv", default="a.mkv")
+    parser.add_argument("path", metavar="path", type=str, nargs="?", help="Path to video file.", const="a.mkv",
+                        default="a.mkv")
     parser.add_argument("startat", metavar="start-at", type=int, nargs="?", help="Start at frame.", const=0, default=0)
     parser.add_argument("fps", metavar="fps", type=int, help="FPS.", const=24, nargs="?", default=24)
-    parser.add_argument("--mouse_active", metavar="False", type=bool, help="If you want mouse", const=False, nargs="?", default=False)
+    parser.add_argument("--mouse_active", metavar="False", type=bool, help="If you want mouse", const=False, nargs="?",
+                        default=False)
     args = parser.parse_args()
 
     if os.name != "nt":
@@ -49,7 +51,7 @@ if __name__ == "__main__":
         print("\nBye.")
 
     except BlockingIOError as e:
-        print("\033[0m",show_cursor, mouse_off, mouse_direct_off)
+        print("\033[0m", show_cursor, mouse_off, mouse_direct_off)
 
         print(e)
         with open("error.log", "w") as f:

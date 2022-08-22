@@ -3,8 +3,10 @@ from src.menu import Menu
 import cv2
 import os
 import time
+
 if os.name != "nt":
-    import tty, sys
+    import tty
+    import sys
 
 
 def main(args, player):
@@ -30,4 +32,5 @@ def main(args, player):
             time_to_wait = 1 / args.fps - (time.time() - deltat)
             if time_to_wait > 0:
                 time.sleep(time_to_wait)
-            print(f"\033[0m\033[7;8H frames: {str(player.cap.get(cv2.CAP_PROP_POS_FRAMES))} fps: {1 / (time.time() - deltat):.2f}" f" loose: {time_to_wait * 1000:.2f}, {player.Globals.Menu.is_active}")
+            print(
+                f"\033[0m\033[7;8H frames: {str(player.cap.get(cv2.CAP_PROP_POS_FRAMES))} fps: {1 / (time.time() - deltat):.2f}" f" loose: {time_to_wait * 1000:.2f}, {player.Globals.Menu.is_active}")
