@@ -47,7 +47,6 @@ class Player:
 
     def screen_loop(self):
         frame = self.get_frame()
-        print(len(self.txt_frames))
         for yi in range(len(frame)):
             for xi in range(len(frame[yi])):
                 r, g, b = frame[yi][xi]
@@ -65,7 +64,7 @@ class Player:
 
     def print_frames(self):
         try:
-            print(f"\033[0;0H{''.join([''.join(i) for i in self.txt_frames])}")
+            print(f"\033[0;0H{''.join([''.join(i) for i in self.txt_frames])}\033[0;0H")
         except BlockingIOError:
             pass
 

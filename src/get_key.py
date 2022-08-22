@@ -32,7 +32,11 @@ try:
         else:
             firstChar = sys.stdin.read(1)
             if firstChar == "\x1b":
-                return {"[A": "up", "[B": "down", "[C": "right", "[D": "left"}[sys.stdin.read(1) + sys.stdin.read(1)]
+                LeftChar = sys.stdin.read(1) + sys.stdin.read(1)
+                arrows = {"[A": "up", "[B": "down", "[C": "right", "[D": "left"}
+                if LeftChar in arrows:
+                    return arrows[LeftChar]
+                return firstChar + LeftChar
             else:
                 return firstChar
 
@@ -78,8 +82,14 @@ def match_key(player):
             player.ProgressBar.set_pause()
         case "p":
             player.ProgressBar.set_status()
+        case "m":
+            player.Globals.Menu.is_active = not player.Globals.Menu.is_active
+            player.Globals.Menu.witch_menu_open = -1
         case "q":
             player.Globals.quit_player()
+    # is menu key:
+    if player.Globals.Menu.is_active:
+        player.Globals.Menu.match_key(key)
 
 
 def mouse_press_on_bar(player, key: KeyEvent):
