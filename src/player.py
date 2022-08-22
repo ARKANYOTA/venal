@@ -67,4 +67,3 @@ class Player:
             print(f"\033[0;0H{''.join([''.join(i) for i in self.txt_frames])}\033[0;0H")
         except BlockingIOError:
             pass
-

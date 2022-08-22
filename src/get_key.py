@@ -85,6 +85,7 @@ def match_key(player):
         case "m":
             player.Globals.Menu.is_active = not player.Globals.Menu.is_active
             player.Globals.Menu.witch_menu_open = -1
+            player.ProgressBar.set_actulize()
         case "q":
             player.Globals.quit_player()
     # is menu key:
@@ -110,9 +111,11 @@ def match_mouse(key: KeyEvent, player):
         if key.click_state == "down":
             if mouse_press_on_bar(player, key):
                 return
-            else:
-                player.ProgressBar.set_pause()
-                return
+            if player.Globals.Menu.is_active:
+                if player.Globals.Menu.mouse_press_in_menu(key.mouse_pos[0], key.mouse_pos[1]):
+                    return
+            player.ProgressBar.set_pause()
+            return
     elif key.key == "mouse_scroll_up":
         player.video_add(300)
     elif key.key == "mouse_scroll_down":

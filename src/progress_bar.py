@@ -83,3 +83,12 @@ class ProgressBar:
         self.Player.cap.set(cv2.CAP_PROP_POS_FRAMES, frame)
         self.set_actulize()
 
+    def set_play(self) -> None:
+        self.pause = False
+        self.set_actulize()
+
+    def is_play(self) -> bool:
+        return not self.pause
+
+    def is_pause(self) -> bool:
+        return self.pause
