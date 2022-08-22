@@ -1,5 +1,5 @@
 #  Menu
-# \/
+#
 # [MenuItem|MenuItem|MenuItem|MenuItem]
 #          |SubMenu |
 #          |SubMenu |
@@ -17,6 +17,7 @@ class MenuParent:
         self.menu_items = []
         self.args = args
         self.call_key = call_key
+        self.size = 20
 
     def add(self, menu_item):
         self.menu_items.append(menu_item)
@@ -61,9 +62,9 @@ class Menu:
 
     def start(self):
         media_menu = MenuItem("(M)edia", None, "M")
-        open_file_menu = SubMenu("Open (F)ile", True, "F")  # self.player.open_file
+        open_file_menu = SubMenu("Open (F)ile", None, "F")  # self.player.open_file
         media_menu.add(open_file_menu)
-        open_recent_menu = SubMenu("Open (R)ecent", True, "R")  # self.player.open_recent
+        open_recent_menu = SubMenu("Open (R)ecent", None, "R")  # self.player.open_recent
         media_menu.add(open_recent_menu)
         self.add(media_menu)
         playback_menu = MenuItem("Play(B)ack", None, "B")
@@ -74,15 +75,19 @@ class Menu:
         self.add(playback_menu)
 
         audio_menu = MenuItem("(A)udio", None, "A")
-        audio_menu.add(SubMenu("TODO", True))
+        audio_menu.add(SubMenu("TODO", None))
         self.add(audio_menu)
         subtitle_menu = MenuItem("(S)ubtitle", None, "S")
-        subtitle_menu.add(SubMenu("TODO", True))
+        subtitle_menu.add(SubMenu("TODO", None))
         self.add(subtitle_menu)
         exit_menu = MenuItem("(E)xit", self.player.Globals.quit_player, "E")
         self.add(exit_menu)
         help_menu = MenuItem("(H)elp", None, "H")
-        help_menu.add(SubMenu("TODO", True))
+        help_menu.add(SubMenu("TODO", None))
+        help_menu.add(SubMenu("TODO", None))
+        help_menu.add(SubMenu("TODO", None))
+        help_menu.add(SubMenu("TODO", None))
+        help_menu.add(SubMenu("TODO", None))
         self.add(help_menu)
 
     def show(self):
@@ -95,7 +100,7 @@ class Menu:
                 first_line.append("\033[30;104m ")
             else:
                 first_line.append(" ")
-            for j in i.text:
+            for j in f"{i.text:<{i.size - 3}}":  # -3 because of " | "
                 first_line.append(j)
             if self.witch_menu_open == ind:
                 first_line.append(" \033[30;107m")
@@ -106,18 +111,21 @@ class Menu:
         for i in range(len(first_line)):
             text_frame[0][i] = first_line[i]
 
-        # Extand the menu if needed show SubMenu
+        # Extand the menu if needed show SubMenus
         if self.witch_menu_open != -1:
             SubMenuToShow: MenuItem = self.menu_items[self.witch_menu_open]
             if SubMenuToShow.call_action() == "ToSelect":
                 for ind, i in enumerate(SubMenuToShow.menu_items):
-                    if i.condition_check():  # Write normal
-                        for jnd, j in enumerate(i.text):
-                            text_frame[1 + ind][1 + jnd] = "\033[30;107m" + j + "\033[0m"
+                    if i.condition_check():
+                        text_frame[ind + 1][SubMenuToShow.size * self.witch_menu_open] = "\033[30;107m|"
                     else:
-                        for jnd, j in enumerate(i.text):  # Write disabled
-                            text_frame[1 + ind][1 + jnd] = "\033[30;100m" + j + "\033[0m"
-        self.player.ProgressBar.set_actulize()
+                        text_frame[ind + 1][SubMenuToShow.size * self.witch_menu_open] = "\033[97;100m|"
+                    text_frame[ind + 1][SubMenuToShow.size * self.witch_menu_open + 1] = " "
+                    for jnd, j in enumerate(f"{i.text:<{i.size}}"):
+                        text_frame[ind + 1][SubMenuToShow.size * self.witch_menu_open + 2 + jnd] = j
+                    text_frame[ind + 1][SubMenuToShow.size * self.witch_menu_open + 2 + i.size] = " "
+                    text_frame[ind + 1][SubMenuToShow.size * self.witch_menu_open + 2 + i.size + 1] = "|\033[0m"
+        self.player.ProgressBar.set_actulize()  # TODO Move this line
 
     def close_menu(self):
         self.witch_menu_open = -1
@@ -130,13 +138,13 @@ class Menu:
                 if menu_item.call_key == key:
                     self.witch_menu_open = -1
                     self.player.ProgressBar.set_actulize()
-                    return
+                    return True
                 else:
-                    for tmpui, submenu_item in enumerate(menu_item.menu_items):
+                    for submenu_item in menu_item.menu_items:
                         if submenu_item.condition_check():
                             if submenu_item.call_key == key:
-                                result = submenu_item.call_action()
-                                return result
+                                submenu_item.call_action()
+                                return True
             if menu_item.call_key == key:
                 self.witch_menu_open = ind
                 return True
@@ -147,7 +155,14 @@ class Menu:
         if self.is_active:
             if y == 1:
                 for ind, i in enumerate(self.menu_items):
-                    if x == ind + 1:
+                    if ind * i.size + 1 <= x <= ind * i.size + i.size + 1:
                         self.witch_menu_open = ind
                         return True
+            else:
+                if self.witch_menu_open != -1:
+                    for ind, submenu_item in enumerate(self.menu_items[self.witch_menu_open].menu_items):
+                        if y == ind + 2:
+                            if submenu_item.size * self.witch_menu_open <= x <= submenu_item.size * self.witch_menu_open + 2 + submenu_item.size + 2:
+                                submenu_item.call_action()
+                                return True
         return False

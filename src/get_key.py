@@ -95,8 +95,8 @@ def match_key(player):
         case "q":
             player.Globals.quit_player()
     # is menu key:
-    if player.Globals.Menu.is_active:
-        player.Globals.Menu.match_key(key)
+    if player.Globals.Menu.match_key(key):
+        player.Globals.Menu.is_active = True
 
 
 def mouse_press_on_bar(player, key: KeyEvent):
