@@ -64,11 +64,12 @@ class Menu:
     def show(self):
         text_frame = self.player.txt_frames
 
+        # Fist line of the menu
         first_line = ["\033[0m\033[30;107m "]
         for ind, i in enumerate(self.menu_items):
             first_line.append(" ")
             if self.witch_menu_open == ind:
-                first_line.append("\033[31;107m" + i.text[0])
+                first_line.append("\033[30;104m" + i.text[0])
                 for j in i.text[1:-1]:
                     first_line.append(j)
                 first_line.append(i.text[-1]+"\033[30;107m")
@@ -80,6 +81,13 @@ class Menu:
 
         for i in range(len(first_line)):
             text_frame[0][i] = first_line[i]
+
+        # Extand the menu if needed show SubMenu
+        if self.witch_menu_open != -1:
+            SubMenuToShow: MenuItem = self.menu_items[self.witch_menu_open]
+            for ind, i in enumerate(SubMenuToShow.submenu_items):
+                for jnd, j in enumerate(i.name):
+                    text_frame[1+ind][1+jnd] = j
 
     def close_menu(self):
         self.witch_menu_open = -1
