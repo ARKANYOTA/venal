@@ -70,6 +70,9 @@ def match_key(player):
         if not is_data():
             return
     key = get_key(player)
+    if player.Globals.Windows.has_active_windows:
+        if player.Globals.Windows.match_key(key) is not None:
+            return
     match key:
         case KeyEvent():
             match_mouse(key, player)

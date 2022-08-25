@@ -6,6 +6,7 @@ class Globals:
     Args = None
     Mouse = None
     Menu = None
+    Windows = None
 
     def __init__(self) -> None:
         self.term_x, self.term_y = os.get_terminal_size()

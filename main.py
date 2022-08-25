@@ -44,9 +44,13 @@ if __name__ == "__main__":
             player.Globals.Mouse = Mouse(False, player)
         player.main_thread = threading.Thread(target=main, args=(args, player))
         player.main_thread.start()
-        player.main_thread.join()
+        try:
+            player.main_thread.join()
+        except KeyboardInterrupt:
+            player.running = False
         if args.mouse_active:
             player.Globals.Mouse.end()
+
     except KeyboardInterrupt:
         print("\nBye.")
 

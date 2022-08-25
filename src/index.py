@@ -4,6 +4,8 @@ import cv2
 import os
 import time
 
+from src.windows import Windows
+
 if os.name != "nt":
     import tty
     import sys
@@ -12,6 +14,7 @@ if os.name != "nt":
 def main(args, player):
     if os.name != "nt":
         tty.setcbreak(sys.stdin.fileno())
+    player.Globals.Windows = Windows(player)
     player.Globals.Menu = Menu(player)
 
     while player.running:
@@ -28,9 +31,11 @@ def main(args, player):
                 player.Globals.Menu.show()
             if player.ProgressBar.pause:
                 player.ProgressBar.show_status()
+            if player.Globals.Windows.has_active_windows:
+                player.Globals.Windows.show()
             player.print_frames()
             time_to_wait = 1 / args.fps - (time.time() - deltat)
             if time_to_wait > 0:
                 time.sleep(time_to_wait)
             print(
-                f"\033[0m\033[7;8H frames: {str(player.cap.get(cv2.CAP_PROP_POS_FRAMES))} fps: {1 / (time.time() - deltat):.2f}" f" loose: {time_to_wait * 1000:.2f}, {player.Globals.Menu.is_active}")
+                f"\033[0m\033[7;8H frames: {str(player.cap.get(cv2.CAP_PROP_POS_FRAMES))} fps: {1 / (time.time() - deltat):.2f}" f" loose: {time_to_wait * 1000:.2f}, {player.Globals.Windows.active_windows}")

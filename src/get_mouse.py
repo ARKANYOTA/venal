@@ -258,7 +258,11 @@ class Mouse:
         return self.reader
 
     def end(self):
-        self.reader.join()
+        try:
+            self.reader.join()
+        except KeyboardInterrupt:
+            clean_quit()
+            pass
         print(mouse_off)
         print(mouse_direct_off)
         print(normal_screen)

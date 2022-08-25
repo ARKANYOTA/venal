@@ -29,7 +29,10 @@ class MenuParent:
             return "ToSelect"
         if not self.condition_check():
             return "NoneSelectable"  # Do nothing
-        self.action()
+        if self.args is None:
+            self.action()
+        else:
+            self.action(*self.args)
 
     def condition_check(self):
         if self.condition is None:
@@ -61,10 +64,12 @@ class Menu:
         self.menu_items.append(menu_item)
 
     def start(self):
+        player = self.player
         media_menu = MenuItem("(M)edia", None, "M")
-        open_file_menu = SubMenu("Open (F)ile", None, "F")  # self.player.open_file
+        open_file_menu = SubMenu("Open (F)ile", player.Globals.Windows.open_windows, "F",
+                                 args=("file_open_windows",))  # self.player.open_file
         media_menu.add(open_file_menu)
-        open_recent_menu = SubMenu("Open (R)ecent", None, "R")  # self.player.open_recent
+        open_recent_menu = SubMenu("Open (R)ecent", player.Globals.Windows.open_windows, "R", args=("open_recent_windows",))  # self.player.open_recent
         media_menu.add(open_recent_menu)
         self.add(media_menu)
         playback_menu = MenuItem("Play(B)ack", None, "B")
@@ -82,12 +87,7 @@ class Menu:
         self.add(subtitle_menu)
         exit_menu = MenuItem("(E)xit", self.player.Globals.quit_player, "E")
         self.add(exit_menu)
-        help_menu = MenuItem("(H)elp", None, "H")
-        help_menu.add(SubMenu("TODO", None))
-        help_menu.add(SubMenu("TODO", None))
-        help_menu.add(SubMenu("TODO", None))
-        help_menu.add(SubMenu("TODO", None))
-        help_menu.add(SubMenu("TODO", None))
+        help_menu = MenuItem("(H)elp", self.player.Globals.Windows.open_windows, "H", args=("help_windows",))
         self.add(help_menu)
 
     def show(self):
