@@ -69,8 +69,10 @@ class Menu:
         open_file_menu = SubMenu("Open (F)ile", player.Globals.Windows.open_windows, "F",
                                  args=("file_open_windows",))  # self.player.open_file
         media_menu.add(open_file_menu)
-        open_recent_menu = SubMenu("Open (R)ecent", player.Globals.Windows.open_windows, "R", args=("open_recent_windows",))  # self.player.open_recent
+        open_recent_menu = SubMenu("Open (R)ecent", player.Globals.Windows.open_windows, "R", args=("open_recent_windows",), condition=(lambda: False))  # self.player.open_recent
         media_menu.add(open_recent_menu)
+        info_menu = SubMenu("(I)nfo", player.Globals.Windows.open_windows, "I", args=("info_windows",))  # self.player.info
+        media_menu.add(info_menu)
         self.add(media_menu)
         playback_menu = MenuItem("Play(B)ack", None, "B")
         playback_menu.add(

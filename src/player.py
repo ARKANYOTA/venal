@@ -67,3 +67,18 @@ class Player:
             print(f"\033[0;0H{''.join([''.join(i) for i in self.txt_frames])}\033[0;0H")
         except BlockingIOError:
             pass
+
+    def open_file(self, path: str):
+        # check if file is video
+        try:
+            tmp_cap = cv2.VideoCapture(path)
+            if tmp_cap.isOpened():
+                self.App.path = path
+                self.p_start(0)
+                return True
+            else:
+                # Send notification to user
+                # print("File is not a video")
+                return False
+        except Exception as e:
+            return False

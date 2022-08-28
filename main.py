@@ -21,6 +21,11 @@ if os.name != "nt":
 # - Options
 #     - Caméra args.path = 0
 # - Sur la bar un apercu de la video
+
+# TOFIX
+# - quand l'écran est trop petit, out of range pour le menu
+# - refaire text_frame[][] par une fonction
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Vlc on terminal.")
     parser.add_argument("path", metavar="path", type=str, nargs="?", help="Path to video file.", const="a.mkv",
