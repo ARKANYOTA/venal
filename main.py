@@ -12,12 +12,10 @@ if os.name != "nt":
 # TODO
 # - Buffer
 # - Sound  # https://www.geeksforgeeks.org/play-sound-in-python/
-# - Mouse
-# - (Menu)
-#     - Selection de quelle video on veut lire dans le menu
+# (Menu)
 #     - Sous titres
+#     - Mouse on menu
 #     - Audio
-#     - Quitter
 # - Options
 #     - Caméra args.path = 0
 # - Sur la bar un apercu de la video
